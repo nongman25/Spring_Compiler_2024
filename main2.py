@@ -1,4 +1,6 @@
 import sys
+import traceback
+
 
 from build_table import build_table
 from data_build import data_build
