@@ -10,6 +10,7 @@ def parsing_table_dictionary_build():
     tokens = token_build()
     grammar_rules = grammer_rule_build()
     build_table(parsing_table, table_data, tokens, grammar_rules)
+    #print(parsing_table)
     return parsing_table
 
 def create_parsing_function(parsing_table, top_state, next_input_symbol, reductions, token_index):
@@ -60,7 +61,16 @@ def create_parsing_function(parsing_table, top_state, next_input_symbol, reducti
         return action
 
     action_entry = parsing_table.get(top_state, {}).get(next_input_symbol, None)
-    if action_entry is None:
+    if action_entry is None: # Why Error
+        state_actions=parsing_table[top_state]
+        symbols = list(state_actions.keys())
+        print(f"Don't {next_input_symbol}. You need ",end='')
+        for i, symbol in enumerate(symbols):
+            print(f"{symbol}", end='')
+            if i < len(symbols) - 1:
+                print(", ", end='')
+            else:
+                print()
         return lambda stack, tokens: "Error: No valid action for state {} with symbol '{}' at token index {}.".format(top_state, next_input_symbol, token_index)
 
     if isinstance(action_entry, tuple):
