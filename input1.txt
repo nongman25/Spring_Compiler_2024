@@ -1,1 +1,1 @@
-vtype num
+vtype id assign num semi

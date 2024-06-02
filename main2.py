@@ -5,29 +5,32 @@ from data_build import data_build
 from grammer_rule_build import grammer_rule_build
 
 class ParseTreeNode:
-    def __init__(self, value):
+    def __init__(self, value, depth):
         self.value = value
+        self.depth = depth
         self.children = []
 
 def build_parse_tree(reductions):
     parse_tree = []
-    for reduction in reductions:
+    depth=0
+    for reduction in reductions[::-1]:
         lhs, rhs = reduction.split(" -> ")
         rhs_symbols = rhs.split()
-        parent = ParseTreeNode(lhs)
+        if depth == 0:
+            parent = ParseTreeNode(lhs, depth)
+            depth=depth+1
+        else:
+            for child in parent.children[::-1]:
+                child
         for symbol in rhs_symbols:
-            if symbol in token_build():  # terminal
-                parent.children.append(ParseTreeNode(symbol))
-            else:  # non-terminal
-                if len(parse_tree) != 0:
-                    child = parse_tree.pop()
-                    parent.children.append(child)
+            if symbol in token_build():  
+                parent.children.append(ParseTreeNode(symbol, depth))
         parse_tree.append(parent)
     return parse_tree
 
 def print_parse_tree(parse_tree, depth=0):
-    for node in parse_tree[::-1]:
-        print("  " * depth + node.value)
+    for node in parse_tree:
+        print("  " * depth + node.value + str(node.depth))
         if node.children:
             for child in node.children:
                 print_parse_tree([child], depth + 1)
@@ -37,6 +40,7 @@ def parsing_table_dictionary_build():
     table_data = data_build()
     tokens = token_build()
     grammar_rules = grammer_rule_build()
+
     build_table(parsing_table, table_data, tokens, grammar_rules)
     #print(parsing_table)
     return parsing_table
@@ -161,11 +165,11 @@ def main():
     print("Reductions:", reductions)
 
     # 파싱 트리 구축
-    parse_tree = build_parse_tree(reductions)
+    #parse_tree = build_parse_tree(reductions)
 
     # 파싱 트리 출력
-    print("Parsing Tree:")
-    print_parse_tree(parse_tree)
+    #print("Parsing Tree:")
+    #print_parse_tree(parse_tree)
 
 if __name__ == "__main__":
     main()
