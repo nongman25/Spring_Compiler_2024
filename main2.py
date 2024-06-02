@@ -4,6 +4,34 @@ from build_table import build_table
 from data_build import data_build
 from grammer_rule_build import grammer_rule_build
 
+class ParseTreeNode:
+    def __init__(self, value):
+        self.value = value
+        self.children = []
+
+def build_parse_tree(reductions):
+    parse_tree = []
+    for reduction in reductions:
+        lhs, rhs = reduction.split(" -> ")
+        rhs_symbols = rhs.split()
+        parent = ParseTreeNode(lhs)
+        for symbol in rhs_symbols:
+            if symbol in token_build():  # terminal
+                parent.children.append(ParseTreeNode(symbol))
+            else:  # non-terminal
+                if len(parse_tree) != 0:
+                    child = parse_tree.pop()
+                    parent.children.append(child)
+        parse_tree.append(parent)
+    return parse_tree
+
+def print_parse_tree(parse_tree, depth=0):
+    for node in parse_tree[::-1]:
+        print("  " * depth + node.value)
+        if node.children:
+            for child in node.children:
+                print_parse_tree([child], depth + 1)
+
 def parsing_table_dictionary_build():
     parsing_table = {}
     table_data = data_build()
@@ -128,9 +156,16 @@ def main():
         if "Error" in result or result == "Parsing completed successfully.":
             break
         token_index += 1
-
+    
     print("Final stack state:", stack)
     print("Reductions:", reductions)
+
+    # 파싱 트리 구축
+    parse_tree = build_parse_tree(reductions)
+
+    # 파싱 트리 출력
+    print("Parsing Tree:")
+    print_parse_tree(parse_tree)
 
 if __name__ == "__main__":
     main()
