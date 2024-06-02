@@ -19,30 +19,7 @@ def print_tree(node, level=0):
     print('  ' * level + str(node))
     for child in node.children:
         print_tree(child, level + 1)
-
-def build_table(parsing_table, table_data, tokens, grammar_rules):
-    lines = table_data.strip().split('\n')
-    for line in lines:
-        if not line.strip():
-            continue
-        parts = line.split(',')
-        state = int(parts[0])  # 상태 번호
-        actions = parts[1:]  # 해당 상태의 액션들
-
-        state_dict = {}
-        for token, action in zip(tokens, actions):
-            if action:
-                if action.startswith('s'):  # shift 동작
-                    state_dict[token] = ('shift', int(action[1:]))
-                elif action.startswith('r'):  # reduce 동작
-                    rule_index = int(action[1:])
-                    state_dict[token] = ('reduce', grammar_rules[rule_index])
-                elif action == 'acc':  # accept 동작
-                    state_dict[token] = 'accept'
-                else:  # goto 동작
-                    state_dict[token] = ('goto', int(action))
-        parsing_table[state] = state_dict
-
+        
 def parsing_table_dictionary_build():
     parsing_table = {}
     table_data = data_build()
@@ -52,7 +29,7 @@ def parsing_table_dictionary_build():
     return parsing_table
 
 def create_parsing_function(parsing_table, top_state, next_input_symbol, reductions, token_index):
-    # 작업을 수행하는 함수들 정의
+    # 파싱 테이블 정의
     def shift(next_state):
         def action(stack, tokens, parse_tree_stack):
             stack.append(next_state)
@@ -109,13 +86,7 @@ def create_parsing_function(parsing_table, top_state, next_input_symbol, reducti
     if action_entry is None:
         state_actions = parsing_table[top_state]
         symbols = list(state_actions.keys())
-        print(f"Don't {next_input_symbol}. You need ", end='')
-        for i, symbol in enumerate(symbols):
-            print(f"{symbol}", end='')
-            if i < len(symbols) - 1:
-                print(", ", end='')
-            else:
-                print()
+        print(f"You should use {symbols} instead of {next_input_symbol}")
         return lambda stack, tokens, parse_tree_stack: "Error: No valid action for state {} with symbol '{}' at token index {}.".format(top_state, next_input_symbol, token_index)
 
     if isinstance(action_entry, tuple):
@@ -166,19 +137,22 @@ def main():
 
     print("Initial stack state:", stack)
     token_index = 0
+    Success=False
     while tokens:
         next_input_symbol = tokens[0]
         parser_action = create_parsing_function(parsing_table, stack[-1], next_input_symbol, reductions, token_index)
         result = parser_action(stack, tokens, parse_tree_stack)
         print(result)
         if "Error" in result or result == "Parsing completed successfully.":
+            if result == "Parsing completed successfully." :
+                Success=True
             break
         token_index += 1
 
     print("Final stack state:", stack)
     print("Reductions:", reductions)
 
-    if parse_tree_stack:
+    if parse_tree_stack and Success:
         print("\nParse Tree:")
         print_tree(parse_tree_stack[-1])
 
