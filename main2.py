@@ -4,6 +4,7 @@ from build_table import build_table
 from data_build import data_build
 from grammer_rule_build import grammer_rule_build
 
+
 class TreeNode:
     def __init__(self, value):
         self.value = value
@@ -15,10 +16,29 @@ class TreeNode:
     def __str__(self):
         return self.value
 
+def print_tree(node, level=0, prefix=""):
+    """ 재귀적으로 트리를 출력하면서 각 노드의 구조를 보기 쉽게 표현 """
+    lead = " " * (level * 4)
+    if level > 0:
+        lead += "|-- "
+
+    # 현재 노드의 값과 접두사를 출력
+    print(f"{lead}{prefix}{node.value}")
+
+    # 모든 자식 노드에 대해 재귀적으로 함수를 호출
+    if node.children:
+        if len(node.children) == 1:
+            print_tree(node.children[0], level + 1, "`-")
+        else:
+            for child in node.children[:-1]:
+                print_tree(child, level + 1, "|-")
+            print_tree(node.children[-1], level + 1, "`-")
+"""
 def print_tree(node, level=0):
     print('  ' * level + str(node))
     for child in node.children:
         print_tree(child, level + 1)
+        """
         
 def parsing_table_dictionary_build():
     parsing_table = {}
